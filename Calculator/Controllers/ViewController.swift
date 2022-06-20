@@ -18,8 +18,8 @@ final internal class ViewController: UIViewController {
     private let stack1: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
-        view.distribution = .fillEqually
         view.spacing = 14
+        view.distribution = .fillEqually
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -51,7 +51,7 @@ final internal class ViewController: UIViewController {
         return view
     }()
             
-    private let output: UILabel = {
+    private let displayLabel: UILabel = {
         let view = UILabel()
         view.text = "0"
         view.font = .systemFont(ofSize: 80, weight: .light)
@@ -63,6 +63,18 @@ final internal class ViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    
+    private var displayValue: Double {
+        get {
+            guard let number = Double(displayLabel.text!) else {
+                fatalError("Cannot convert dipslayLabel to Double")
+            }
+            return number
+        }
+        set {
+            displayLabel.text = String(newValue)
+        }
+    }
 
     private lazy var clear: UIButton = {
         let view = UIButton()
@@ -73,7 +85,7 @@ final internal class ViewController: UIViewController {
         view.clipsToBounds = true
         view.layer.masksToBounds = true
         view.sizeToFit()
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
 
@@ -85,7 +97,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "LightGray")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
 
@@ -97,7 +109,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "LightGray")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
 
@@ -109,7 +121,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "Orange")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
     
@@ -121,7 +133,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "Orange")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
 
@@ -133,7 +145,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "Orange")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
     
@@ -145,7 +157,7 @@ final internal class ViewController: UIViewController {
         view.backgroundColor = UIColor(named: "Orange")
         view.clipsToBounds = true
         view.layer.masksToBounds = true
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
     
@@ -158,7 +170,7 @@ final internal class ViewController: UIViewController {
         view.clipsToBounds = true
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.addTarget(self, action: #selector(calcButtonDidTap(_:)), for: .touchUpInside)
+        view.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         return view
     }()
     
@@ -260,7 +272,6 @@ final internal class ViewController: UIViewController {
         return view
     }()
 
-    
     private lazy var seven: UIButton = {
         let view = UIButton()
         view.setTitle("7", for: .normal)
@@ -300,7 +311,7 @@ final internal class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-        view.addSubview(output)
+        view.addSubview(displayLabel)
         view.addSubview(mainStack)
         mainStack.addArrangedSubview(stack1)
         mainStack.addArrangedSubview(stack2)
@@ -345,9 +356,9 @@ final internal class ViewController: UIViewController {
             stack2.heightAnchor.constraint(equalToConstant: (view.coordinateSpace.bounds.width-74)/4),
             stack3.heightAnchor.constraint(equalToConstant: (view.coordinateSpace.bounds.width-74)/4),
             stack4.heightAnchor.constraint(equalToConstant: (view.coordinateSpace.bounds.width-74)/4),
-            output.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            output.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            output.bottomAnchor.constraint(equalTo: mainStack.topAnchor, constant: -31)
+            displayLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            displayLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            displayLabel.bottomAnchor.constraint(equalTo: mainStack.topAnchor, constant: -31)
         ])
         clear.layer.cornerRadius = (view.coordinateSpace.bounds.width-74)/8
         negative.layer.cornerRadius = (view.coordinateSpace.bounds.width-74)/8
@@ -374,11 +385,11 @@ final internal class ViewController: UIViewController {
     
     @objc private func decimalButtonDidTap(_ sender: UIButton) {
         clear.setTitle("C", for: .normal)
-        if output.text!.contains(".") {
+        if displayLabel.text!.contains(".") {
             return
         } else {
             isFinishedTypingNumber = false
-            output.text?.append(".")
+            displayLabel.text?.append(".")
         }
     }
 
@@ -386,37 +397,24 @@ final internal class ViewController: UIViewController {
         clear.setTitle("C", for: .normal)
         if let number = sender.currentTitle {
             if isFinishedTypingNumber {
-                output.text = number
+                displayLabel.text = number
                 isFinishedTypingNumber = false
             } else {
-                output.text?.append(number)
+                displayLabel.text?.append(number)
             }
         }
     }
 
-
-    @objc private func calcButtonDidTap(_ sender: UIButton) {
+    @objc private func calcButtonPressed(_ sender: UIButton) {
+        
         isFinishedTypingNumber = true
-        guard let number = Double(output.text!) else {
-            fatalError("can not convert output number to Double")
-        }
+        
         if let calcMethod = sender.currentTitle {
-            switch calcMethod {
-            case "AC", "C":
-                output.text = String(0)
-                clear.setTitle("AC", for: .normal)
-            case "+/-":
-                output.text = String(number * -1)
-            case "%":
-                output.text = String(number/100)
-            case "+":
-                sender.backgroundColor = .white
-                sender.setTitleColor(UIColor(named: "Orange"), for: .normal)
-                
-            default:
-                return
+            let calculator = CalculatorLogic(number: displayValue)
+            guard let result = calculator.calculate(symbol: calcMethod) else {
+                fatalError("The result of the calculation is nil")
             }
+            displayValue = result
         }
     }
 }
-
