@@ -3,9 +3,38 @@
 import UIKit
 
 final internal class ViewController: UIViewController {
+	
+	private var calculator = CalculatorLogic()
     
     private var isFinishedTypingNumber: Bool = true
         
+    private var displayValue: Double {
+        get {
+            guard let number = Double(displayLabel.text!) else {
+                fatalError("Cannot convert dipslayLabel to Double")
+            }
+            return number
+        }
+        set {
+            displayLabel.text = String(newValue)
+        }
+    }
+    
+    // MARK: - Declare UI elements
+	
+    private let displayLabel: UILabel = {
+        let view = UILabel()
+        view.text = "0"
+        view.font = .systemFont(ofSize: 80, weight: .light)
+        view.textColor = .white
+        view.textAlignment = .right
+        view.numberOfLines = 1
+        view.sizeToFit()
+        view.backgroundColor = .clear
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let mainStack: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
@@ -50,31 +79,6 @@ final internal class ViewController: UIViewController {
         view.spacing = 14
         return view
     }()
-            
-    private let displayLabel: UILabel = {
-        let view = UILabel()
-        view.text = "0"
-        view.font = .systemFont(ofSize: 80, weight: .light)
-        view.textColor = .white
-        view.textAlignment = .right
-        view.numberOfLines = 0
-        view.sizeToFit()
-        view.backgroundColor = .clear
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private var displayValue: Double {
-        get {
-            guard let number = Double(displayLabel.text!) else {
-                fatalError("Cannot convert dipslayLabel to Double")
-            }
-            return number
-        }
-        set {
-            displayLabel.text = String(newValue)
-        }
-    }
 
     private lazy var clear: UIButton = {
         let view = UIButton()
@@ -381,8 +385,6 @@ final internal class ViewController: UIViewController {
         nine.layer.cornerRadius = (view.coordinateSpace.bounds.width-74)/8
     }
     
-    
-    
     @objc private func decimalButtonDidTap(_ sender: UIButton) {
         clear.setTitle("C", for: .normal)
         if displayLabel.text!.contains(".") {
@@ -404,17 +406,14 @@ final internal class ViewController: UIViewController {
             }
         }
     }
-
+    
     @objc private func calcButtonPressed(_ sender: UIButton) {
-        
         isFinishedTypingNumber = true
-        
+        calculator.setNumber(displayValue)
         if let calcMethod = sender.currentTitle {
-            let calculator = CalculatorLogic(number: displayValue)
-            guard let result = calculator.calculate(symbol: calcMethod) else {
-                fatalError("The result of the calculation is nil")
+            if let result = calculator.calculate(symbol: calcMethod) {
+				displayValue = result
             }
-            displayValue = result
         }
     }
 }
